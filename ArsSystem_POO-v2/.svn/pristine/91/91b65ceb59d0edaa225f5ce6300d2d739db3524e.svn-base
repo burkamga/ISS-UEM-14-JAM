@@ -1,0 +1,180 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package control;
+
+/**
+ *
+ * @author Maicon
+ */
+public class COConsulta {
+    /*
+    //Aqui temos as variáveis "dia", que serve para registrar o dia da consulta, e data que neste caso armazena dentro
+    //do objeto VOConsulta a data e a hora da consulta.
+    public static boolean addConsulta(String dia, Date data, int horaInicio, VOMedico medico, VOPaciente paciente, ENTipoConsulta tipo) {
+        
+        //Instancia e Povoa o Objeto Consulta
+        VOConsulta consulta = new VOConsulta();
+        consulta.setMedico(medico);
+        consulta.setPaciente(paciente);
+        consulta.setDataHora(data);
+        consulta.setTipo(tipo);
+        boolean flag = false;
+        
+        
+        //Verifica se há alguma consulta no dia
+        for(VODataConsulta dt : DataBase.getListaDataConsulta()){
+            if (dt.getData() == null ? dia == null : dt.getData().equals(dia)){
+                flag = true;
+                //Verifica se é consulta normal ou retorno
+                if (tipo == ENTipoConsulta.CONSULTA){
+                    if (dt.getHora()[horaInicio] == null && dt.getHora()[horaInicio+1] == null){
+                        dt.getHora()[horaInicio] = consulta;
+                        dt.getHora()[horaInicio+1] = consulta;
+                        return true;
+                    }else {
+                        return false;
+                    }
+                }else if (dt.getHora()[horaInicio] == null){
+                        dt.getHora()[horaInicio] = consulta;
+                        return true;
+                        }
+            }
+        }
+        if (flag == false){
+            VODataConsulta dt = new VODataConsulta();
+            dt.setData(dia);
+            if (tipo == ENTipoConsulta.CONSULTA){
+                dt.getHora()[horaInicio] = consulta;
+                dt.getHora()[horaInicio+1] = consulta;
+            }else {
+                dt.getHora()[horaInicio] = consulta;
+            }
+            DataBase.getListaDataConsulta().add(dt);
+            return true;
+            }
+        return false; 
+        }
+    
+    //Faz o tratamento das horas dadas por hh:mm para int de 0 à 20
+    public static int preparaHoraConsulta(Date data) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(data);
+        int hora = cal.get(Calendar.HOUR_OF_DAY);
+        int min = cal.get(Calendar.MINUTE);
+        
+        if(hora < 8 && hora > 18) {
+            return -1;
+        }
+        
+        hora = (hora - 8) * 2;
+        
+        if(min > 0 && min <= 30) {
+            hora++;
+        }else if(min > 31) {
+            hora+=2;
+        }
+        
+        return hora;
+    }
+    
+    public static boolean attConsulta(VOConsulta c, VOMedico medico, VOPaciente paciente, ENTipoConsulta tipo) {
+        
+        //Instancia e Povoa o Objeto Consulta
+        VOConsulta consulta = new VOConsulta();
+        consulta.setMedico(medico);
+        consulta.setPaciente(paciente);
+        consulta.setDataHora(c.getDataHora());
+        consulta.setTipo(tipo);
+        
+        
+        for(VODataConsulta dt : DataBase.getListaDataConsulta()){
+            if (dt.getData().equalsIgnoreCase(Tela.getDataFormatada(c.getDataHora()))){
+                if ((c.getTipo().equals(ENTipoConsulta.RETORNO)) && (tipo == ENTipoConsulta.CONSULTA)){
+                    if (dt.getHora()[preparaHoraConsulta(c.getDataHora())+1] == null){
+                        dt.getHora()[preparaHoraConsulta(c.getDataHora())+1] = consulta;
+                    }else{
+                        System.out.println("Já existe consulta para este horário");
+                        return false;
+                    }
+                }else {
+                    if((c.getTipo().equals(ENTipoConsulta.CONSULTA)) && (tipo == ENTipoConsulta.RETORNO)){
+                        dt.getHora()[preparaHoraConsulta(c.getDataHora())+1] = null;
+                    }else{
+                        if ((c.getTipo().equals(ENTipoConsulta.CONSULTA)) && (tipo == ENTipoConsulta.CONSULTA)){
+                            dt.getHora()[preparaHoraConsulta(c.getDataHora())+1] = consulta;
+                        }
+                    }
+                }
+                dt.getHora()[preparaHoraConsulta(c.getDataHora())] = consulta;
+                return true;
+            }
+            
+       }
+       return true;
+}
+    
+    public static List listaConsulta(){
+        return DataBase.getListaDataConsulta();
+    }
+    
+    public static List buscaConsultasPorData(String dia){
+        
+        List<VODataConsulta> resultado = new ArrayList<>();
+            for (VODataConsulta c : DataBase.getListaDataConsulta() ){
+                if (c.getData().equals(dia)){
+                resultado.add(c);
+            }
+        }
+        return resultado;
+    }
+    
+    /*public static List buscaConsultasPorDataComFiltro(String dia){
+        
+        List<VODataConsulta> lista = new ArrayList<>();
+        for (VODataConsulta c : DataBase.getListaDataConsulta() ){
+            if (c.getData().equals(dia)){
+                lista.add(c);
+            }
+        }
+        List<VODataConsulta> resultado = new ArrayList<>();
+        for (VODataConsulta c2 : lista){
+                for (int i=0; i<20;i++){
+                    if (c2.getHora()[i] != null){
+                        if (("".equals(c2.getHora()[i].getPaciente().getCelular())) && ("".equals(c2.getHora()[i].getPaciente().getEmail()))){
+                        c2.getHora()[i] = null ;
+                        }
+                    }
+                }
+                return lista;
+        }
+        
+        return resultado;
+    }
+    
+    public static VOConsulta buscaConsulta (String dia, int horaInicio){
+        List<VODataConsulta> ConsultasDoDia = buscaConsultasPorData(dia);
+             
+        VOConsulta unica_consulta = ConsultasDoDia.get(0).getHora()[horaInicio];
+        
+        return unica_consulta;
+   }
+    
+    public static void delConsulta(String dia, int horaInicio){
+              
+       //metodo para remover 1
+       List<VODataConsulta> temp = buscaConsultasPorData(dia);
+       for(VODataConsulta it : temp) {
+           if(it.getHora()[horaInicio] != null) {
+               if (it.getHora()[horaInicio].getTipo().compareTo(ENTipoConsulta.CONSULTA) == 0){
+                   it.getHora()[horaInicio+1] = null;
+               }
+               it.getHora()[horaInicio] = null;
+           }
+       }
+        
+    }
+    
+    */
+}

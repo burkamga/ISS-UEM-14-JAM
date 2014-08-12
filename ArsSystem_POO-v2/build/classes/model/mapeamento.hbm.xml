@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="model.Vopessoa" table="vopessoa">
+    <id name="idPessoa"> <column name="idPessoa"/>
+            <generator class="native" />
+    </id>
+        <property name="nome" type="string">
+            <column name="nome" length="45" />
+        </property>
+        <property name="rg" type="string">
+            <column name="rg" length="45" />
+        </property>
+        <property name="cpf" type="string">
+            <column name="cpf" length="45" />
+        </property>
+        <property name="dataNascimento" type="date">
+            <column name="dataNascimento" length="10" />
+        </property>
+        <property name="endereco" type="string">
+            <column name="endereco" length="45" />
+        </property>
+        <property name="telefone" type="string">
+            <column name="telefone" length="45" />
+        </property>
+        <property name="celular" type="string">
+            <column name="celular" length="45" />
+        </property>
+        <property name="email" type="string">
+            <column name="email" length="45" />
+        </property>
+        <property name="tipo" type="java.lang.Integer">
+            <column name="tipo" />
+        </property>
+        
+        <joined-subclass name="model.Vomedico" extends="Vopessoa" table="vomedico">
+            <key column="Pessoa_idPessoa" />
+            <property name="numCrm" type="string">
+                <column name="numCRM" length="45" />
+            </property>
+            <property name="especializacao" type="string">
+                <column name="especializacao" length="45" />
+            </property>
+            <property name="usename" type="string">
+                <column name="usename" length="45" />
+            </property>
+            <property name="senha" type="string">
+                <column name="senha" length="45" />
+            </property>
+        </joined-subclass>
+        <joined-subclass name="model.Vosecretaria" extends="vopessoa" table="vosecretaria">
+            <key column="Pessoa_idPessoa" />
+            <property name="salario" type="int">
+                <column name="salario" length="45" />
+            </property>
+            <property name="username" type="string">
+                <column name="username" length="45" />
+            </property>
+            <property name="senha" type="string">
+                <column name="senha" length="45" />
+            </property>
+        </joined-subclass>
+        <joined-subclass name="model.Vopaciente" extends="Vopessoa" table="vopaciente">
+            <key column="Pessoa_idPessoa" />
+            <property name="tipoConvenio" type="string">
+                <column name="tipoConvenio" length="45" />
+            </property>
+        </joined-subclass>
+   </class>
+   <class name="model.Voadm" table="voadm">
+        <id name="idadm" type="int">
+            <column name="idadm" />
+            <generator class="native" />
+        </id>
+        <property name="username" type="string">
+            <column name="username" length="45" />
+        </property>
+        <property name="senha" type="string">
+            <column name="senha" length="45" />
+        </property>
+    </class>
+       <class name="model.Voprontuario" table="voprontuario">
+        <id name="idProntuario" type="int">
+            <column name="idProntuario" />
+            <generator class="native" />
+        </id>
+        <property name="vopaciente" type="int">
+            <column name="Paciente_Pessoa_idPessoa" length="11" />
+        </property>
+        <property name="sintomas" type="string">
+            <column name="sintomas" length="300" />
+        </property>
+        <property name="diagnostico" type="string">
+            <column name="diagnostico" length="100" />
+        </property>
+        <property name="tratamento" type="string">
+            <column name="tratamento" length="45" />
+        </property>
+        <property name="voconsulta" type="int">
+            <column name="idconsulta" length="11" />
+        </property>
+    </class>
+    <class name="model.Vopacienteext" table="vopacienteext">
+        <id name="pacientePessoaIdPessoa" type="int">
+            <column name="Paciente_Pessoa_idPessoa" />
+        </id>
+        <property name="bebe" type="boolean">
+            <column name="bebe" length="1" />
+        </property>
+        <property name="fuma" type="boolean">
+            <column name="fuma" length="1" />
+        </property>
+        <property name="colesterol" type="boolean">
+            <column name="colesterol" length="1" />
+        </property>
+        <property name="diabetes" type="boolean">
+            <column name="diabetes" length="1" />
+        </property>
+        <property name="doencasCardiacas" type="boolean">
+            <column name="doencasCardiacas" length="1" />
+        </property>
+        <property name="cirurgias" type="string">
+            <column name="cirurgias" length="100" />
+        </property>
+        <property name="alergias" type="string">
+            <column name="alergias" length="140" />
+        </property>
+    </class>
+    <class name="model.Voconsultas" table="voconsultas">
+        <id name="voconsultasId" type="int">
+            <column name="VOConsultasId" />
+            <generator class="native" />
+        </id>
+        <!--many-to-one name="idmedico" class="model.Vomedico" cascade="none" outer-join="auto" update="true" insert="true" column="pessoa_idPessoa" not-null="true"/>
+        <many-to-one name="idpaciente" class="model.Vopaciente" cascade="none" outer-join="auto" update="true" insert="true" column="Pessoa_idPessoa" not-null="true"/-->
+        <property name="idpaciente" type="int">
+            <column name="Paciente_Pessoa_idPessoa" length="10" />
+        </property>
+        <property name="idmedico" type="int">
+            <column name="Medico_Pessoa_idPessoa" length="10" />
+        </property>
+        <property name="tipoConsulta" type="int">
+            <column name="tipoConsulta" length="10" />
+        </property>
+        <property name="data" type="string">
+            <column name="data" length="45" />
+        </property>
+        <property name="hora" type="int">
+            <column name="hora" length="11" />
+        </property>
+    </class>
+    <class name="model.Vodataconsulta" table="vodataconsulta">
+        <id name="data"> <column name="Data"/>
+            <!--generator class="native" /-->
+        </id>
+        <property name="a" type="int">
+            <column name="a" length="11" />
+        </property>
+        <property name="b" type="int">
+            <column name="b" length="11" />
+        </property>
+        <property name="c" type="int">
+            <column name="c" length="11" />
+        </property>
+        <property name="d" type="int">
+            <column name="d" length="11" />
+        </property>
+        <property name="e" type="int">
+            <column name="e" length="11" />
+        </property>
+        <property name="f" type="int">
+            <column name="f" length="11" />
+        </property>
+        <property name="g" type="int">
+            <column name="g" length="11" />
+        </property>
+        <property name="h" type="int">
+            <column name="h" length="11" />
+        </property>
+        <property name="i" type="int">
+            <column name="i" length="11" />
+        </property>
+        <property name="j" type="int">
+            <column name="j" length="11" />
+        </property>
+        <property name="k" type="int">
+            <column name="k" length="11" />
+        </property>
+        <property name="l" type="int">
+            <column name="l" length="11" />
+        </property>
+        <property name="m" type="int">
+            <column name="m" length="11" />
+        </property>
+        <property name="n" type="int">
+            <column name="n" length="11" />
+        </property>
+        <property name="o" type="int">
+            <column name="o" length="11" />
+        </property>
+        <property name="p" type="int">
+            <column name="p" length="11" />
+        </property>
+        <property name="q" type="int">
+            <column name="q" length="11" />
+        </property>
+        <property name="r" type="int">
+            <column name="r" length="11" />
+        </property>
+        <property name="s" type="int">
+            <column name="s" length="11" />
+        </property>
+        <property name="t" type="int">
+            <column name="t" length="11" />
+        </property>
+    </class>
+</hibernate-mapping>

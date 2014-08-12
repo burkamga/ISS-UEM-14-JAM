@@ -1,0 +1,209 @@
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+
+CREATE SCHEMA IF NOT EXISTS `ars_poo` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;
+USE `ars_poo` ;
+
+-- -----------------------------------------------------
+-- Table `ars_poo`.`VOPessoa`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ars_poo`.`VOPessoa` ;
+
+CREATE  TABLE IF NOT EXISTS `ars_poo`.`VOPessoa` (
+  `idPessoa` INT NOT NULL AUTO_INCREMENT ,
+  `nome` VARCHAR(45) NULL ,
+  `rg` VARCHAR(45) NULL ,
+  `cpf` VARCHAR(45) NULL ,
+  `dataNascimento` DATE NULL ,
+  `endereco` VARCHAR(45) NULL ,
+  `telefone` VARCHAR(45) NULL ,
+  `celular` VARCHAR(45) NULL ,
+  `email` VARCHAR(45) NULL ,
+  `tipo` INT NULL ,
+  PRIMARY KEY (`idPessoa`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ars_poo`.`VOAdm`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ars_poo`.`VOAdm` ;
+
+CREATE  TABLE IF NOT EXISTS `ars_poo`.`VOAdm` (
+  `idadm` INT NOT NULL ,
+  `username` VARCHAR(45) NULL ,
+  `senha` VARCHAR(45) NULL ,
+  PRIMARY KEY (`idadm`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ars_poo`.`VOMedico`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ars_poo`.`VOMedico` ;
+
+CREATE  TABLE IF NOT EXISTS `ars_poo`.`VOMedico` (
+  `Pessoa_idPessoa` INT NOT NULL ,
+  `numCRM` VARCHAR(45) NULL ,
+  `especializacao` VARCHAR(45) NULL ,
+  `usename` VARCHAR(45) NULL ,
+  `senha` VARCHAR(45) NULL ,
+  PRIMARY KEY (`Pessoa_idPessoa`) ,
+  CONSTRAINT `fk_Medico_Pessoa`
+    FOREIGN KEY (`Pessoa_idPessoa` )
+    REFERENCES `ars_poo`.`VOPessoa` (`idPessoa` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ars_poo`.`VOSecretaria`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ars_poo`.`VOSecretaria` ;
+
+CREATE  TABLE IF NOT EXISTS `ars_poo`.`VOSecretaria` (
+  `Pessoa_idPessoa` INT NOT NULL ,
+  `salario` INT NULL ,
+  `username` VARCHAR(45) NULL ,
+  `senha` VARCHAR(45) NULL ,
+  PRIMARY KEY (`Pessoa_idPessoa`) ,
+  CONSTRAINT `fk_Secretaria_Pessoa1`
+    FOREIGN KEY (`Pessoa_idPessoa` )
+    REFERENCES `ars_poo`.`VOPessoa` (`idPessoa` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ars_poo`.`VOPaciente`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ars_poo`.`VOPaciente` ;
+
+CREATE  TABLE IF NOT EXISTS `ars_poo`.`VOPaciente` (
+  `Pessoa_idPessoa` INT NOT NULL ,
+  `tipoConvenio` VARCHAR(45) NULL ,
+  PRIMARY KEY (`Pessoa_idPessoa`) ,
+  CONSTRAINT `fk_Paciente_Pessoa1`
+    FOREIGN KEY (`Pessoa_idPessoa` )
+    REFERENCES `ars_poo`.`VOPessoa` (`idPessoa` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ars_poo`.`VOConsultas`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ars_poo`.`VOConsultas` ;
+
+CREATE  TABLE IF NOT EXISTS `ars_poo`.`VOConsultas` (
+  `VOConsultasId` INT NOT NULL ,
+  `Paciente_Pessoa_idPessoa` INT NOT NULL ,
+  `Medico_Pessoa_idPessoa` INT NOT NULL ,
+  `ConsultaAtiva` TINYINT(1) NULL ,
+  `daHora` DATE NULL ,
+  INDEX `fk_Consultas_Medico1_idx` (`Medico_Pessoa_idPessoa` ASC) ,
+  PRIMARY KEY (`VOConsultasId`) ,
+  CONSTRAINT `fk_Consultas_Paciente1`
+    FOREIGN KEY (`Paciente_Pessoa_idPessoa` )
+    REFERENCES `ars_poo`.`VOPaciente` (`Pessoa_idPessoa` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Consultas_Medico1`
+    FOREIGN KEY (`Medico_Pessoa_idPessoa` )
+    REFERENCES `ars_poo`.`VOMedico` (`Pessoa_idPessoa` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ars_poo`.`VOProntuario`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ars_poo`.`VOProntuario` ;
+
+CREATE  TABLE IF NOT EXISTS `ars_poo`.`VOProntuario` (
+  `idProntuario` INT NOT NULL ,
+  `Paciente_Pessoa_idPessoa` INT NOT NULL ,
+  `Consultas_Paciente_Pessoa_idPessoa` INT NOT NULL ,
+  `sintomas` VARCHAR(300) NULL ,
+  `diagnostico` VARCHAR(100) NULL ,
+  `tratamento` VARCHAR(45) NULL ,
+  PRIMARY KEY (`idProntuario`) ,
+  INDEX `fk_Prontuario_Paciente1_idx` (`Paciente_Pessoa_idPessoa` ASC) ,
+  INDEX `fk_Prontuario_Consultas1_idx` (`Consultas_Paciente_Pessoa_idPessoa` ASC) ,
+  CONSTRAINT `fk_Prontuario_Paciente1`
+    FOREIGN KEY (`Paciente_Pessoa_idPessoa` )
+    REFERENCES `ars_poo`.`VOPaciente` (`Pessoa_idPessoa` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Prontuario_Consultas1`
+    FOREIGN KEY (`Consultas_Paciente_Pessoa_idPessoa` )
+    REFERENCES `ars_poo`.`VOConsultas` (`Paciente_Pessoa_idPessoa` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ars_poo`.`VOPacienteExt`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ars_poo`.`VOPacienteExt` ;
+
+CREATE  TABLE IF NOT EXISTS `ars_poo`.`VOPacienteExt` (
+  `Paciente_Pessoa_idPessoa` INT NOT NULL ,
+  `bebe` TINYINT(1) NULL ,
+  `fuma` TINYINT(1) NULL ,
+  `colesterol` TINYINT(1) NULL ,
+  `diabetes` TINYINT(1) NULL ,
+  `doencasCardiacas` TINYINT(1) NULL ,
+  `cirurgias` VARCHAR(100) NULL ,
+  `alergias` VARCHAR(140) NULL ,
+  PRIMARY KEY (`Paciente_Pessoa_idPessoa`) ,
+  CONSTRAINT `fk_VOPacienteExt_Paciente1`
+    FOREIGN KEY (`Paciente_Pessoa_idPessoa` )
+    REFERENCES `ars_poo`.`VOPaciente` (`Pessoa_idPessoa` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `ars_poo`.`VODataConsulta`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `ars_poo`.`VODataConsulta` ;
+
+CREATE  TABLE IF NOT EXISTS `ars_poo`.`VODataConsulta` (
+  `Data` VARCHAR(45) NULL ,
+  `a` INT NULL ,
+  `b` INT NULL ,
+  `c` INT NULL ,
+  `d` INT NULL ,
+  `e` INT NULL ,
+  `f` INT NULL ,
+  `g` INT NULL ,
+  `h` INT NULL ,
+  `i` INT NULL ,
+  `j` INT NULL ,
+  `k` INT NULL ,
+  `l` INT NULL ,
+  `m` INT NULL ,
+  `n` INT NULL ,
+  `o` INT NULL ,
+  `p` INT NULL ,
+  `q` INT NULL ,
+  `r` INT NULL ,
+  `s` INT NULL ,
+  `t` INT NULL ,
+  PRIMARY KEY (`Data`) )
+ENGINE = InnoDB;
+
+USE `ars_poo` ;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

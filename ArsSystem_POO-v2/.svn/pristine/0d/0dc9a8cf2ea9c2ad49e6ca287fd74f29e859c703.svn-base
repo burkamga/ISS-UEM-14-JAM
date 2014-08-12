@@ -1,0 +1,37 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package control;
+
+import javax.swing.JOptionPane;
+import model.CRUD_Voadm;
+import view.adm.TelaAdm;
+
+/**
+ *
+ * @author Maicon Henrique
+ */
+public class COLogin {
+    
+    public static boolean verificaLogin(int tipoPessoa, String username, String password){
+        boolean saida = false;
+        
+        if(tipoPessoa == 2){
+            saida = CRUD_Voadm.verificaLoginAdm(username, password);
+            if (saida){
+                TelaAdm TelaAdm = new TelaAdm();
+                TelaAdm.setLocationRelativeTo(null);
+                TelaAdm.setVisible(true);
+                
+            }else{
+                JOptionPane.showMessageDialog(null, "Usuário ou Senha Incorreto!");
+            }
+        }
+        
+        return saida;
+            
+        
+    }
+    
+}

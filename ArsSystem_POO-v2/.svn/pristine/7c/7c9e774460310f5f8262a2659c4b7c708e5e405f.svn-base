@@ -1,0 +1,356 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package control;
+
+import java.util.List;
+import javax.swing.JOptionPane;
+import model.CRUD_Voconsultas;
+import model.CRUD_Vodataconsulta;
+import model.Voconsultas;
+import model.Vodataconsulta;
+import model.Vomedico;
+import model.Vopaciente;
+
+/**
+ *
+ * @author Maicon
+ */
+public class COConsulta {
+
+    public static boolean addConsulta(Vomedico medico, Vopaciente paciente,
+            int tipoConsulta, String dataConsulta, int horaConsulta) {
+        int horaInc = horaConsulta+1;
+        boolean saida = true;
+        boolean gravou = false;
+        //Verifica se há consultas para o dia
+        List<Vodataconsulta> consultasDoDia = CRUD_Vodataconsulta.listar();
+        for (Vodataconsulta diaConsulta : consultasDoDia) {
+            if (dataConsulta.equals(diaConsulta.getData())) {
+                
+                //Uma vez que encontrou, procura no dia se há o horário pretendido.
+                //O Horário +1 é no caso de consulta normal:
+                boolean horaLivre = CRUD_Vodataconsulta.retornaHoraLivre(horaConsulta, diaConsulta);
+                boolean horaLivre_Normal = CRUD_Vodataconsulta.retornaHoraLivre(horaInc, diaConsulta);
+                
+                //verifica que tipo de consulta é (0 se Normal e 1 se Retorno)
+                if(tipoConsulta == 1){
+                    if (horaLivre){
+                        JOptionPane.showMessageDialog(null, " 01 Já existe consulta para o horário selecionado", "ERRO", JOptionPane.ERROR_MESSAGE);
+                        saida = false;                       
+                    }else{
+                        Voconsultas consulta = new Voconsultas();
+                        consulta.setData(dataConsulta);
+                        consulta.setHora(horaConsulta);
+                        consulta.setIdmedico(medico.getIdPessoa());
+                        consulta.setIdpaciente(paciente.getIdPessoa());
+                        consulta.setTipoConsulta(tipoConsulta);
+                        saida = CRUD_Voconsultas.salvar(consulta);
+                        //Obtem o ID da Consulta salva e Registra em Vodataconsulta
+                        List<Voconsultas> allConsultas = CRUD_Voconsultas.listar();
+                        for (Voconsultas Consulta : allConsultas){
+                            if ((dataConsulta.equals(Consulta.getData()) && (Consulta.getHora() == horaConsulta))){
+                                 Vodataconsulta achaConsuslta = CRUD_Vodataconsulta.buscarDataConsulta(dataConsulta);
+                                 CRUD_Vodataconsulta.salvarDataConsulta(horaConsulta, achaConsuslta, Consulta.getVoconsultasId());
+                             }
+                         }
+                        gravou = true;
+                    }
+                }else{
+                    //Aqui ela será então do Tipo NORMAL, ocupando 2 lugares no banco de horas
+                    if (horaLivre_Normal){
+                        JOptionPane.showMessageDialog(null, " 02 Já existe consulta para o horário selecionado", "ERRO", JOptionPane.ERROR_MESSAGE);
+                        saida = false;                       
+                    }else{
+
+                        //Adicionando o 1º objeto consulta
+                        Voconsultas consulta = new Voconsultas();
+                        consulta.setData(dataConsulta);
+                        consulta.setHora(horaConsulta);
+                        consulta.setIdmedico(medico.getIdPessoa());
+                        consulta.setIdpaciente(paciente.getIdPessoa());
+                        consulta.setTipoConsulta(tipoConsulta);
+                        saida = CRUD_Voconsultas.salvar(consulta);
+                        //Obtem o ID da Consulta salva e Registra em Vodataconsulta
+                        List<Voconsultas> allConsultas = CRUD_Voconsultas.listar();
+                        for (Voconsultas Consulta : allConsultas){
+                            if ((dataConsulta.equals(Consulta.getData()) && (Consulta.getHora() == horaConsulta))){
+                                 Vodataconsulta achaConsuslta = CRUD_Vodataconsulta.buscarDataConsulta(dataConsulta);
+                                 CRUD_Vodataconsulta.salvarDataConsulta(horaConsulta, achaConsuslta, Consulta.getVoconsultasId());
+                             }
+                         }
+
+                        //Adicionando o 2º objeto consulta
+                        Voconsultas consulta2 = new Voconsultas();
+                        consulta2.setData(dataConsulta);
+                        consulta2.setHora(horaInc);
+                        consulta2.setIdmedico(medico.getIdPessoa());
+                        consulta2.setIdpaciente(paciente.getIdPessoa());
+                        consulta2.setTipoConsulta(tipoConsulta);
+                        saida = CRUD_Voconsultas.salvar(consulta2);
+                        //Obtem o ID da Consulta salva e Registra em Vodataconsulta
+                        List<Voconsultas> allConsultas2 = CRUD_Voconsultas.listar();
+                         for (Voconsultas Consulta2 : allConsultas2){
+                             if ((dataConsulta.equals(Consulta2.getData()) && (Consulta2.getHora() == horaInc))){
+                                 Vodataconsulta achaConsuslta = CRUD_Vodataconsulta.buscarDataConsulta(dataConsulta);
+                                 CRUD_Vodataconsulta.salvarDataConsulta(horaInc, achaConsuslta, Consulta2.getVoconsultasId());
+                             }
+                         }
+                         gravou = true;
+                    }
+                        
+                }
+                            
+                            
+            }
+                    
+        }
+        //Se não encontrou nenhuma data igual a escolhida, cria-se uma nova. Isso se nenhum erro for encontrado
+        if(saida && !gravou){
+            
+            //istancia nova data
+            Vodataconsulta dtConsulta = new Vodataconsulta();
+            dtConsulta.setData(dataConsulta);
+            JOptionPane.showMessageDialog(null, "to aqui" + horaInc);
+            boolean horaLivre1 = CRUD_Vodataconsulta.retornaHoraLivre(horaConsulta, dtConsulta);
+            boolean horaLivre_Normal1 = CRUD_Vodataconsulta.retornaHoraLivre(horaInc, dtConsulta);
+            
+            if(tipoConsulta == 1){
+                if (horaLivre1){
+                    JOptionPane.showMessageDialog(null, " 03 Já existe consulta para o horário selecionado", "ERRO", JOptionPane.ERROR_MESSAGE);
+                    saida = false;                       
+                }else{
+                    Voconsultas consulta = new Voconsultas();
+                    consulta.setData(dataConsulta);
+                    consulta.setHora(horaConsulta);
+                    consulta.setIdmedico(medico.getIdPessoa());
+                    consulta.setIdpaciente(paciente.getIdPessoa());
+                    consulta.setTipoConsulta(tipoConsulta);
+                    saida = CRUD_Voconsultas.salvar(consulta);
+                    //Obtem o ID da Consulta salva e Registra em Vodataconsulta
+                    List<Voconsultas> allConsultas = CRUD_Voconsultas.listar();
+                    for (Voconsultas Consulta : allConsultas){
+                        if ((dataConsulta.equals(Consulta.getData()) && (Consulta.getHora() == horaConsulta))){
+                             CRUD_Vodataconsulta.salvarNovaData(horaConsulta, dtConsulta, Consulta.getVoconsultasId());
+                         }
+                     }
+                }
+            }else{
+                //Aqui ela será então do Tipo NORMAL, ocupando 2 lugares no banco de horas
+                if (horaLivre_Normal1){
+                    JOptionPane.showMessageDialog(null, " 04 Já existe consulta para o horário selecionado", "ERRO", JOptionPane.ERROR_MESSAGE);
+                    saida = false;                       
+                }else{
+
+                    //Adicionando o 1º objeto consulta
+                    Voconsultas consulta = new Voconsultas();
+                    consulta.setData(dataConsulta);
+                    consulta.setHora(horaConsulta);
+                    consulta.setIdmedico(medico.getIdPessoa());
+                    consulta.setIdpaciente(paciente.getIdPessoa());
+                    consulta.setTipoConsulta(tipoConsulta);
+                    saida = CRUD_Voconsultas.salvar(consulta);
+                    //Obtem o ID da Consulta salva e Registra em Vodataconsulta
+                    List<Voconsultas> allConsultas = CRUD_Voconsultas.listar();
+                    for (Voconsultas Consulta : allConsultas){
+                        if ((dataConsulta.equals(Consulta.getData()) && (Consulta.getHora() == horaConsulta))){
+                             CRUD_Vodataconsulta.salvarNovaData(horaConsulta, dtConsulta, Consulta.getVoconsultasId());
+                         }
+                     }
+
+                    //Adicionando o 2º objeto consulta
+                    Voconsultas consulta2 = new Voconsultas();
+                    consulta2.setData(dataConsulta);
+                    consulta2.setHora(horaInc);
+                    consulta2.setIdmedico(medico.getIdPessoa());
+                    consulta2.setIdpaciente(paciente.getIdPessoa());
+                    consulta2.setTipoConsulta(tipoConsulta);
+                    saida = CRUD_Voconsultas.salvar(consulta2);
+                    //Obtem o ID da Consulta salva e Registra em Vodataconsulta
+                    List<Voconsultas> allConsultas2 = CRUD_Voconsultas.listar();
+                     for (Voconsultas Consulta2 : allConsultas2){
+                         if ((dataConsulta.equals(Consulta2.getData()) && (Consulta2.getHora() == horaInc))){
+                             Vodataconsulta achaConsuslta = CRUD_Vodataconsulta.buscarDataConsulta(dataConsulta);
+                             CRUD_Vodataconsulta.salvarDataConsulta(horaInc, achaConsuslta, Consulta2.getVoconsultasId());
+                         }
+                     }
+                }
+
+            }
+            
+   
+            
+        }
+        
+        return saida;
+    }
+    /*
+     //Aqui temos as variáveis "dia", que serve para registrar o dia da consulta, e data que neste caso armazena dentro
+     //do objeto VOConsulta a data e a hora da consulta.
+     public static boolean addConsulta(String dia, Date data, int horaInicio, VOMedico medico, VOPaciente paciente, ENTipoConsulta tipo) {
+        
+     //Instancia e Povoa o Objeto Consulta
+     VOConsulta consulta = new VOConsulta();
+     consulta.setMedico(medico);
+     consulta.setPaciente(paciente);
+     consulta.setDataHora(data);
+     consulta.setTipo(tipo);
+     boolean flag = false;
+        
+        
+     //Verifica se há alguma consulta no dia
+     for(VODataConsulta dt : DataBase.getListaDataConsulta()){
+     if (dt.getData() == null ? dia == null : dt.getData().equals(dia)){
+     flag = true;
+     //Verifica se é consulta normal ou retorno
+     if (tipo == ENTipoConsulta.CONSULTA){
+     if (dt.getHora()[horaInicio] == null && dt.getHora()[horaInicio+1] == null){
+     dt.getHora()[horaInicio] = consulta;
+     dt.getHora()[horaInicio+1] = consulta;
+     return true;
+     }else {
+     return false;
+     }
+     }else if (dt.getHora()[horaInicio] == null){
+     dt.getHora()[horaInicio] = consulta;
+     return true;
+     }
+     }
+     }
+     if (flag == false){
+     VODataConsulta dt = new VODataConsulta();
+     dt.setData(dia);
+     if (tipo == ENTipoConsulta.CONSULTA){
+     dt.getHora()[horaInicio] = consulta;
+     dt.getHora()[horaInicio+1] = consulta;
+     }else {
+     dt.getHora()[horaInicio] = consulta;
+     }
+     DataBase.getListaDataConsulta().add(dt);
+     return true;
+     }
+     return false; 
+     }
+    
+     //Faz o tratamento das horas dadas por hh:mm para int de 0 à 20
+     public static int preparaHoraConsulta(Date data) {
+     Calendar cal = Calendar.getInstance();
+     cal.setTime(data);
+     int hora = cal.get(Calendar.HOUR_OF_DAY);
+     int min = cal.get(Calendar.MINUTE);
+        
+     if(hora < 8 && hora > 18) {
+     return -1;
+     }
+        
+     hora = (hora - 8) * 2;
+        
+     if(min > 0 && min <= 30) {
+     hora++;
+     }else if(min > 31) {
+     hora+=2;
+     }
+        
+     return hora;
+     }
+    
+     public static boolean attConsulta(VOConsulta c, VOMedico medico, VOPaciente paciente, ENTipoConsulta tipo) {
+        
+     //Instancia e Povoa o Objeto Consulta
+     VOConsulta consulta = new VOConsulta();
+     consulta.setMedico(medico);
+     consulta.setPaciente(paciente);
+     consulta.setDataHora(c.getDataHora());
+     consulta.setTipo(tipo);
+        
+        
+     for(VODataConsulta dt : DataBase.getListaDataConsulta()){
+     if (dt.getData().equalsIgnoreCase(Tela.getDataFormatada(c.getDataHora()))){
+     if ((c.getTipo().equals(ENTipoConsulta.RETORNO)) && (tipo == ENTipoConsulta.CONSULTA)){
+     if (dt.getHora()[preparaHoraConsulta(c.getDataHora())+1] == null){
+     dt.getHora()[preparaHoraConsulta(c.getDataHora())+1] = consulta;
+     }else{
+     System.out.println("Já existe consulta para este horário");
+     return false;
+     }
+     }else {
+     if((c.getTipo().equals(ENTipoConsulta.CONSULTA)) && (tipo == ENTipoConsulta.RETORNO)){
+     dt.getHora()[preparaHoraConsulta(c.getDataHora())+1] = null;
+     }else{
+     if ((c.getTipo().equals(ENTipoConsulta.CONSULTA)) && (tipo == ENTipoConsulta.CONSULTA)){
+     dt.getHora()[preparaHoraConsulta(c.getDataHora())+1] = consulta;
+     }
+     }
+     }
+     dt.getHora()[preparaHoraConsulta(c.getDataHora())] = consulta;
+     return true;
+     }
+            
+     }
+     return true;
+     }
+    
+     public static List listaConsulta(){
+     return DataBase.getListaDataConsulta();
+     }
+    
+     public static List buscaConsultasPorData(String dia){
+        
+     List<VODataConsulta> resultado = new ArrayList<>();
+     for (VODataConsulta c : DataBase.getListaDataConsulta() ){
+     if (c.getData().equals(dia)){
+     resultado.add(c);
+     }
+     }
+     return resultado;
+     }
+    
+     /*public static List buscaConsultasPorDataComFiltro(String dia){
+        
+     List<VODataConsulta> lista = new ArrayList<>();
+     for (VODataConsulta c : DataBase.getListaDataConsulta() ){
+     if (c.getData().equals(dia)){
+     lista.add(c);
+     }
+     }
+     List<VODataConsulta> resultado = new ArrayList<>();
+     for (VODataConsulta c2 : lista){
+     for (int i=0; i<20;i++){
+     if (c2.getHora()[i] != null){
+     if (("".equals(c2.getHora()[i].getPaciente().getCelular())) && ("".equals(c2.getHora()[i].getPaciente().getEmail()))){
+     c2.getHora()[i] = null ;
+     }
+     }
+     }
+     return lista;
+     }
+        
+     return resultado;
+     }
+    
+     public static VOConsulta buscaConsulta (String dia, int horaInicio){
+     List<VODataConsulta> ConsultasDoDia = buscaConsultasPorData(dia);
+             
+     VOConsulta unica_consulta = ConsultasDoDia.get(0).getHora()[horaInicio];
+        
+     return unica_consulta;
+     }
+    
+     public static void delConsulta(String dia, int horaInicio){
+              
+     //metodo para remover 1
+     List<VODataConsulta> temp = buscaConsultasPorData(dia);
+     for(VODataConsulta it : temp) {
+     if(it.getHora()[horaInicio] != null) {
+     if (it.getHora()[horaInicio].getTipo().compareTo(ENTipoConsulta.CONSULTA) == 0){
+     it.getHora()[horaInicio+1] = null;
+     }
+     it.getHora()[horaInicio] = null;
+     }
+     }
+        
+     }
+    
+     */
+}

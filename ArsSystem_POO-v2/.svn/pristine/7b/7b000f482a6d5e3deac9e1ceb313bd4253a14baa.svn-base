@@ -1,0 +1,28 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package arssystem_poo.v2;
+
+import view.Login;
+/**
+ *
+ * @author Maicon Henrique
+ */
+public class ArsSystem_POOV2 {
+
+    /**
+     param args the command line arguments
+     */
+    public static void main(String[] args) {
+        //Vomedico teste = CRUD_Vomedico.addMedico("tu", "96536550", "05856156919", null, "Rua bolinha", "99364630", null, null, null, "321456", "juca", "senha");
+        //CRUD_Vomedico.salvar(teste);
+        
+        
+        //Cama a Tela de Login
+        view.Login TelaPrincipal =  new Login();
+        TelaPrincipal.setLocationRelativeTo(null);
+        TelaPrincipal.setVisible(true);
+    }
+}
+
